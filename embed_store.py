@@ -28,7 +28,7 @@ for chunk in chunks:
     embedding = model.encode(chunk["text"]).tolist()
 
     # Store in ChromaDB
-    collection.add(
+    collection.upsert(
         ids=[chunk["chunk_id"]],
         documents=[chunk["text"]],
         embeddings=[embedding],

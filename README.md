@@ -42,3 +42,21 @@ python embed_store.py
 
 - output_chunks.json
 - ChromaDB collection containing embeddings
+
+## Phase 3 - Retrieval
+
+This phase performs semantic search using ChromaDB.
+
+### Run
+
+```bash
+python main.py
+python embed_store.py
+python retriever.py
+```
+
+The retriever:
+- Converts the user query into an embedding
+- Searches ChromaDB
+- Retrieves the top 3 most relevant chunks
+- Displays chunk text, metadata, and similarity distance
