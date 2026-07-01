@@ -28,7 +28,9 @@ for chunk in chunks:
     print(f"Source      : {chunk['metadata']['source']}")
     print(f"Chunk Index : {chunk['metadata']['chunk_index']}")
     print(f"Chunk Size  : {chunk['metadata']['chunk_size']} characters")
+
     print(f"Overlap     : {chunk['metadata']['overlap']} characters")
+
     print("Text:")
     print(chunk["text"])
     print("=" * 60)
