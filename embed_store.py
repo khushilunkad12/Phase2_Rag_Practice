@@ -13,12 +13,13 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 print("Embedding model loaded.")
 
 # Create ChromaDB client
-client = chromadb.Client()
+client = chromadb.PersistentClient(path="chroma_db")
 
 # Create or get collection
 collection = client.get_or_create_collection(
     name="rag_documents"
 )
+
 
 # Process each chunk
 for chunk in chunks:

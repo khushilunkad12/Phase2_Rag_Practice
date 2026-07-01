@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 output_chunks.json
 venv/
+chroma_db/

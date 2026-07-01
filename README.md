@@ -7,7 +7,7 @@ This project demonstrates the first stage of a Retrieval-Augmented Generation (R
 - `loader.py` – Reads text from the document.
 - `chunker.py` – Splits the text into chunks.
 - `main.py` – Connects the loader and chunker and prints the output.
-- `output_chunker.json` - this file is generated when we run main.py , chunks get saved here
+- `output_chunks.json` - this file is generated when we run main.py , chunks get saved here
 ## How to Run
 
 ```bash
@@ -20,3 +20,25 @@ python main.py
 - Splits the document into chunks
 - Prints the total number of chunks
 - Displays each chunk with its chunk number
+
+## Phase 2 - Embeddings
+
+### Features
+- Load document from `data/sample.txt`
+- Split text into overlapping chunks
+- Add metadata to each chunk
+- Save chunks to `output_chunks.json`
+- Generate embeddings using `sentence-transformers/all-MiniLM-L6-v2`
+- Store embeddings in ChromaDB
+
+### Run
+
+```bash
+python main.py
+python embed_store.py
+```
+
+### Output
+
+- output_chunks.json
+- ChromaDB collection containing embeddings
