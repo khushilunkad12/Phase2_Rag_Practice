@@ -7,7 +7,7 @@ This project demonstrates the first stage of a Retrieval-Augmented Generation (R
 - `loader.py` – Reads text from the document.
 - `chunker.py` – Splits the text into chunks.
 - `main.py` – Connects the loader and chunker and prints the output.
-
+- `output_chunker.json` - this file is generated when we run main.py , chunks get saved here
 ## How to Run
 
 ```bash

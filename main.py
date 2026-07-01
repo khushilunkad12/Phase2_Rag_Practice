@@ -12,26 +12,23 @@ text = load_document(file_path)
 # Step 3: Split the document into chunks with metadata
 chunks = chunk_text(text, file_path)
 
-# ==============================
 # Step 4: Save chunks to JSON
-# ==============================
 with open("output_chunks.json", "w", encoding="utf-8") as file:
     json.dump(chunks, file, indent=4)
 
-print("Chunks saved to output_chunks.json")
+print(" Chunks saved to output_chunks.json")
 
-# ==============================
 # Step 5: Print total chunks
-# ==============================
 print(f"\nTotal Chunks: {len(chunks)}\n")
 
-# ==============================
 # Step 6: Print each chunk
-# ==============================
 for chunk in chunks:
     print("=" * 60)
-    print(f"Chunk ID : {chunk['chunk_id']}")
-    print(f"Source   : {chunk['source']}")
+    print(f"Chunk ID    : {chunk['chunk_id']}")
+    print(f"Source      : {chunk['metadata']['source']}")
+    print(f"Chunk Index : {chunk['metadata']['chunk_index']}")
+    print(f"Chunk Size  : {chunk['metadata']['chunk_size']} characters")
+    print(f"Overlap     : {chunk['metadata']['overlap']} characters")
     print("Text:")
     print(chunk["text"])
     print("=" * 60)
