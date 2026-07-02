@@ -1,4 +1,4 @@
-txt
+
 chromadb
 sentence-transformers
 google-genai
