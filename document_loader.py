@@ -1,39 +1,46 @@
 import os
 
-DOCUMENT_FOLDER = "documents"
 
+def load_documents(folder_path):
+    """
+    Loads every .txt file inside the documents folder.
 
-def load_documents():
+    Returns:
+        List of dictionaries containing
+        filename and text.
+    """
 
     documents = []
 
-    if not os.path.exists(DOCUMENT_FOLDER):
+    if not os.path.exists(folder_path):
         raise FileNotFoundError(
-            f"{DOCUMENT_FOLDER} folder not found."
+            f"Folder '{folder_path}' does not exist."
         )
 
-    for filename in os.listdir(DOCUMENT_FOLDER):
+    files = sorted(os.listdir(folder_path))
 
-        if filename.endswith(".txt"):
+    for file_name in files:
 
-            filepath = os.path.join(
-                DOCUMENT_FOLDER,
-                filename
-            )
+        if not file_name.endswith(".txt"):
+            continue
 
-            with open(
-                filepath,
-                "r",
-                encoding="utf-8"
-            ) as file:
+        file_path = os.path.join(folder_path, file_name)
 
-                text = file.read()
+        with open(file_path, "r", encoding="utf-8") as file:
+            text = file.read()
 
-            documents.append(
-                {
-                    "filename": filename,
-                    "text": text
-                }
-            )
+        if not text.strip():
+            print(f"Skipping empty file: {file_name}")
+            continue
+
+        documents.append({
+            "filename": file_name,
+            "text": text
+        })
+
+    if len(documents) == 0:
+        raise ValueError(
+            "No valid text documents found inside the documents folder."
+        )
 
     return documents

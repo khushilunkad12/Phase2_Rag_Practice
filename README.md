@@ -337,6 +337,7 @@ Retrieval-Augmented Generation (RAG) improves LLM responses by retrieving releva
 
 # Requirements
 
+The first execution may take a few minutes because the Sentence Transformer model is downloaded automatically from Hugging Face.
 - Python 3.12
 - Internet connection (required for Gemini API)
 

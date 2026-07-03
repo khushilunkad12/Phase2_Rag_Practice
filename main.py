@@ -7,7 +7,11 @@ from chunker import chunk_text
 # Load all documents
 # ==========================================
 
-documents = load_documents()
+try:
+    documents = load_documents("documents")
+except Exception as e:
+    print(e)
+    exit()
 
 print(f"Loaded {len(documents)} documents.\n")
 

@@ -52,7 +52,11 @@ print("Connected to ChromaDB.")
 # ==========================================
 # 5. Get User Query
 # ==========================================
-query = input("\nEnter your question: ")
+query = input("Enter your question: ")
+
+if not query.strip():
+    print("Question cannot be empty.")
+    exit()
 
 # ==========================================
 # 6. Generate Query Embedding

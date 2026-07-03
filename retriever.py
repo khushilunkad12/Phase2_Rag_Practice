@@ -23,6 +23,10 @@ print("Connected to ChromaDB.")
 # User query
 query = input("Enter your question: ")
 
+if not query.strip():
+    print("Question cannot be empty.")
+    exit()
+
 # Convert query to embedding
 query_embedding = model.encode(query).tolist()
 
