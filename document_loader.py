@@ -1,9 +1,42 @@
 import os
+from pypdf import PdfReader
+
+
+def read_txt(file_path):
+    """
+    Reads a text file and returns its contents.
+    """
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        return file.read()
+
+
+def read_pdf(file_path):
+    """
+    Reads a PDF file and extracts text from every page.
+    """
+
+    reader = PdfReader(file_path)
+
+    text = ""
+
+    for page in reader.pages:
+
+        page_text = page.extract_text()
+
+        if page_text:
+            text += page_text + "\n"
+
+    return text
 
 
 def load_documents(folder_path):
     """
-    Loads every .txt file inside the documents folder.
+    Loads every supported document inside the documents folder.
+
+    Supported formats:
+    - .txt
+    - .pdf
 
     Returns:
         List of dictionaries containing
@@ -21,13 +54,27 @@ def load_documents(folder_path):
 
     for file_name in files:
 
-        if not file_name.endswith(".txt"):
-            continue
-
         file_path = os.path.join(folder_path, file_name)
 
-        with open(file_path, "r", encoding="utf-8") as file:
-            text = file.read()
+        # -----------------------------
+        # Read TXT files
+        # -----------------------------
+        if file_name.lower().endswith(".txt"):
+
+            text = read_txt(file_path)
+
+        # -----------------------------
+        # Read PDF files
+        # -----------------------------
+        elif file_name.lower().endswith(".pdf"):
+
+            text = read_pdf(file_path)
+
+        # -----------------------------
+        # Skip unsupported files
+        # -----------------------------
+        else:
+            continue
 
         if not text.strip():
             print(f"Skipping empty file: {file_name}")
@@ -40,7 +87,7 @@ def load_documents(folder_path):
 
     if len(documents) == 0:
         raise ValueError(
-            "No valid text documents found inside the documents folder."
+            "No valid documents (.txt or .pdf) found inside the documents folder."
         )
 
     return documents

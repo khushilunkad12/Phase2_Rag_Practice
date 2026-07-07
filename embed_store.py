@@ -3,55 +3,95 @@ import os
 import chromadb
 from sentence_transformers import SentenceTransformer
 
-# ----------------------------
-# Check if chunk file exists
-# ----------------------------
-if not os.path.exists("output_chunks.json"):
-    print("Error: output_chunks.json not found.")
-    print("Run:")
-    print("python main.py")
-    exit()
 
-# ----------------------------
-# Load chunks
-# ----------------------------
-with open("output_chunks.json", "r", encoding="utf-8") as file:
-    chunks = json.load(file)
+# ==========================================
+# Store Embeddings
+# ==========================================
 
-print(f"Loaded {len(chunks)} chunks.")
+def store_embeddings():
+    """
+    Reads output_chunks.json,
+    generates embeddings,
+    and stores them in ChromaDB.
+    """
 
-# ----------------------------
-# Load embedding model
-# ----------------------------
-print("Loading embedding model...")
+    # ----------------------------
+    # Check if chunk file exists
+    # ----------------------------
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+    if not os.path.exists("output_chunks.json"):
+        print("Error: output_chunks.json not found.")
+        print()
+        print("Run:")
+        print("python main.py")
+        return
 
-print("Embedding model loaded.")
+    # ----------------------------
+    # Load chunks
+    # ----------------------------
 
-# ----------------------------
-# Connect to ChromaDB
-# ----------------------------
-client = chromadb.PersistentClient(path="chroma_db")
+    with open("output_chunks.json", "r", encoding="utf-8") as file:
+        chunks = json.load(file)
 
-collection = client.get_or_create_collection(
-    name="rag_documents"
-)
+    print(f"Loaded {len(chunks)} chunks.")
 
-print("Connected to ChromaDB.")
+    # ----------------------------
+    # Load embedding model
+    # ----------------------------
 
-# ----------------------------
-# Store embeddings
-# ----------------------------
-for chunk in chunks:
+    print("Loading embedding model...")
 
-    embedding = model.encode(chunk["text"]).tolist()
-
-    collection.upsert(
-        ids=[chunk["chunk_id"]],
-        documents=[chunk["text"]],
-        embeddings=[embedding],
-        metadatas=[chunk["metadata"]]
+    model = SentenceTransformer(
+        "all-MiniLM-L6-v2"
     )
 
-print("Embeddings stored successfully.")
+    print("Embedding model loaded.")
+
+    # ----------------------------
+    # Connect to ChromaDB
+    # ----------------------------
+
+    client = chromadb.PersistentClient(
+        path="chroma_db"
+    )
+
+    collection = client.get_or_create_collection(
+        name="rag_documents"
+    )
+
+    print("Connected to ChromaDB.")
+
+    # ----------------------------
+    # Store embeddings
+    # ----------------------------
+
+    for chunk in chunks:
+
+        embedding = model.encode(
+            chunk["text"]
+        ).tolist()
+
+        collection.upsert(
+            ids=[chunk["chunk_id"]],
+            documents=[chunk["text"]],
+            embeddings=[embedding],
+            metadatas=[chunk["metadata"]]
+        )
+
+    print("Embeddings stored successfully.")
+
+
+# ==========================================
+# Main Function
+# ==========================================
+
+def main():
+    store_embeddings()
+
+
+# ==========================================
+# Entry Point
+# ==========================================
+
+if __name__ == "__main__":
+    main()

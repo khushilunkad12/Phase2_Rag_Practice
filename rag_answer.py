@@ -1,12 +1,13 @@
 from google import genai
-import chromadb
 import os
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
+
+from retriever import retrieve_chunks
 
 # ==========================================
 # 1. Load Environment Variables
 # ==========================================
+
 load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY")
@@ -19,83 +20,50 @@ if not API_KEY:
 # ==========================================
 # 2. Create Gemini Client
 # ==========================================
+
 gemini_client = genai.Client(api_key=API_KEY)
 
-# ==========================================
-# 3. Load Embedding Model
-# ==========================================
-print("Loading embedding model...")
-
-model = SentenceTransformer("all-MiniLM-L6-v2")
-
-print("Embedding model loaded.")
 
 # ==========================================
-# 4. Connect to ChromaDB
+# 3. Generate RAG Answer
 # ==========================================
-db_client = chromadb.PersistentClient(path="chroma_db")
 
-try:
-    collection = db_client.get_collection(
-        name="rag_documents"
-    )
-except Exception:
-    print("Error: Chroma collection not found.")
-    print()
-    print("Run the following commands first:")
-    print("python main.py")
-    print("python embed_store.py")
-    exit()
+def generate_answer(query):
+    """
+    Retrieves relevant chunks and generates
+    an answer using Gemini.
 
-print("Connected to ChromaDB.")
+    Returns:
+        answer
+        metadatas
+        documents
+    """
 
-# ==========================================
-# 5. Get User Query
-# ==========================================
-query = input("Enter your question: ")
+    ids, documents, metadatas, distances = retrieve_chunks(query)
 
-if not query.strip():
-    print("Question cannot be empty.")
-    exit()
+    # print("\nRetrieved Chunks:\n")
 
-# ==========================================
-# 6. Generate Query Embedding
-# ==========================================
-query_embedding = model.encode(query).tolist()
+    # for i in range(len(documents)):
+    #     print("=" * 60)
+    #     print(f"Rank : {i + 1}")
+    #     print(f"Distance : {distances[i]:.4f}")
+    #     print(f"Source : {metadatas[i]['source']}")
+    #     print(f"Chunk : {metadatas[i]['chunk_index']}")
+    #     print()
+    #     print(documents[i])
+    #     print("=" * 60)
 
-# ==========================================
-# 7. Retrieve Top 3 Relevant Chunks
-# ==========================================
-results = collection.query(
-    query_embeddings=[query_embedding],
-    n_results=3
-)
+    # ==========================================
+    # Build Context
+    # ==========================================
 
-documents = results["documents"][0]
-metadatas = results["metadatas"][0]
-distances = results["distances"][0]
+    context = "\n\n".join(documents)
 
-print("\nRetrieved Chunks:\n")
+    # ==========================================
+    # Prompt
+    # ==========================================
 
-for i in range(len(documents)):
-    print("=" * 60)
-    print(f"Rank : {i + 1}")
-    print(f"Distance : {distances[i]:.4f}")
-    print(f"Source : {metadatas[i]['source']}")
-    print(f"Chunk : {metadatas[i]['chunk_index']}")
-    print()
-    print(documents[i])
-    print("=" * 60)
-
-# ==========================================
-# 8. Build Context
-# ==========================================
-context = "\n\n".join(documents)
-
-# ==========================================
-# 9. Prompt Engineering
-# ==========================================
-prompt = f"""
+    prompt = f"""
 You are a helpful AI assistant.
 
 Answer ONLY using the information provided in the context below.
@@ -111,20 +79,61 @@ Question:
 {query}
 """
 
-# ==========================================
-# 10. Generate Answer using Gemini
-# ==========================================
-response = gemini_client.models.generate_content(
-    model="gemini-2.5-flash",
-    contents=prompt
+    # ==========================================
+    # Gemini
+    # ==========================================
+
+    response = gemini_client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+    return (
+    response.text,
+    metadatas,
+    documents,
+    distances
 )
 
+
 # ==========================================
-# 11. Print Final Answer
+# 4. Main Function
 # ==========================================
-print("\n")
-print("=" * 70)
-print("FINAL ANSWER")
-print("=" * 70)
-print(response.text)
-print("=" * 70)
+
+def main():
+
+    query = input("Enter your question: ")
+
+    if not query.strip():
+        print("Question cannot be empty.")
+        return
+
+    answer, metadatas = generate_answer(query)
+
+    print("\n")
+    print("=" * 70)
+    print("FINAL ANSWER")
+    print("=" * 70)
+    print(answer)
+
+    print("\n")
+    print("=" * 70)
+    print("SOURCES")
+    print("=" * 70)
+
+    for index, metadata in enumerate(metadatas, start=1):
+
+        print(
+            f"{index}. {metadata['source']} "
+            f"(Chunk {metadata['chunk_index']})"
+        )
+
+    print("=" * 70)
+
+
+# ==========================================
+# 5. Entry Point
+# ==========================================
+
+if __name__ == "__main__":
+    main()
