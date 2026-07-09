@@ -1,3 +1,4 @@
+import os
 def chunk_text(text, source, chunk_size=300, overlap=50):
     """
     Splits text into chunks without breaking words.
@@ -9,7 +10,9 @@ def chunk_text(text, source, chunk_size=300, overlap=50):
     chunk_id = 1
 
     # Extract filename without extension
-    source_name = source.split("/")[-1].replace(".txt", "")
+    source_name = os.path.splitext(
+    os.path.basename(source)
+)[0]
 
     while start < len(text):
 

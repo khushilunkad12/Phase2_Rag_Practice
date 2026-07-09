@@ -4,7 +4,7 @@
 ![ChromaDB](https://img.shields.io/badge/Vector%20DB-ChromaDB-green)
 ![Sentence Transformers](https://img.shields.io/badge/Embeddings-all--MiniLM--L6--v2-orange)
 ![Gemini](https://img.shields.io/badge/LLM-Gemini%202.5%20Flash-red)
-![Status](https://img.shields.io/badge/Status-Completed-success)
+![Status](https://img.shields.io/badge/Status-Portfolio%20Project-success)
 
 ---
 
@@ -12,46 +12,49 @@
 
 This project demonstrates an end-to-end **Retrieval-Augmented Generation (RAG)** pipeline built using Python.
 
-The application loads multiple documents, splits them into overlapping chunks, generates vector embeddings using Sentence Transformers, stores them in ChromaDB, retrieves the most relevant chunks through semantic search, and finally generates context-aware answers using Google's Gemini API.
+The application loads `.txt` and `.pdf` documents, splits them into overlapping chunks, generates vector embeddings using Sentence Transformers, stores them in ChromaDB, retrieves the most relevant chunks using semantic search, and generates context-aware answers using Google's Gemini API.
 
-The project is designed as a modular learning implementation of a modern RAG architecture.
+The project is designed as a modular Retrieval-Augmented Generation application that demonstrates document ingestion, semantic retrieval, and grounded answer generation through both a command-line interface and a Streamlit web application.
 
 ---
 
 # Features
 
-- Load multiple `.txt` documents automatically from the `documents/` folder.
-- Configurable chunk size and overlap.
-- Metadata generation for every chunk.
-- Sentence Transformer embeddings.
-- Persistent vector storage using ChromaDB.
-- Semantic similarity search.
-- Retrieval of Top-K relevant chunks.
-- Context-aware answer generation using Gemini 2.5 Flash.
-- Modular project architecture.
-- Easy to extend with additional document types.
+* Supports both `.txt` and `.pdf` documents.
+* Automatic document loading.
+* Configurable chunk size and overlap.
+* Metadata generation for every chunk.
+* Sentence Transformer embeddings (`all-MiniLM-L6-v2`).
+* Persistent vector storage using ChromaDB.
+* Semantic similarity search.
+* Retrieval of Top-K relevant chunks.
+* Context-aware answer generation using Gemini 2.5 Flash.
+* Source citations for every generated answer.
+* Streamlit web interface.
+* Modular project architecture.
+* Basic automated testing using assertions.
 
 ---
 
 # Tech Stack
 
-- Python 3.12
-- Sentence Transformers
-- ChromaDB
-- Google Gemini 2.5 Flash
-- python-dotenv
+* Python 3.12
+* Sentence Transformers
+* ChromaDB
+* Google Gemini 2.5 Flash
+* Streamlit
+* PyPDF
+* python-dotenv
 
 ---
 
 # Project Structure
 
-```
+```text
 RAG-Implementation-Python/
 
 │
 ├── documents/
-│   ├── sample.txt
-│   └── rag.txt
 │
 ├── chroma_db/
 │
@@ -61,6 +64,8 @@ RAG-Implementation-Python/
 ├── embed_store.py
 ├── retriever.py
 ├── rag_answer.py
+├── app.py
+├── test_loader.py
 │
 ├── output_chunks.json
 │
@@ -74,73 +79,47 @@ RAG-Implementation-Python/
 
 # File Description
 
-| File | Description |
-|------|-------------|
-| `document_loader.py` | Loads all text documents from the `documents/` folder. |
-| `chunker.py` | Splits documents into overlapping chunks while generating metadata. |
-| `main.py` | Runs the document loading and chunking pipeline, producing `output_chunks.json`. |
-| `embed_store.py` | Generates embeddings using Sentence Transformers and stores them in ChromaDB. |
-| `retriever.py` | Retrieves the most relevant chunks for a user query using semantic search. |
-| `rag_answer.py` | Complete Retrieval-Augmented Generation pipeline using Gemini. |
-| `documents/` | Folder containing source documents. |
-| `chroma_db/` | Persistent vector database. |
-| `output_chunks.json` | Generated chunked representation of all processed documents. |
+| File                 | Description                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| `document_loader.py` | Loads `.txt` and `.pdf` documents.                               |
+| `chunker.py`         | Splits documents into overlapping chunks and generates metadata. |
+| `main.py`            | Runs the document loading and chunking pipeline.                 |
+| `embed_store.py`     | Generates embeddings and stores them in ChromaDB.                |
+| `retriever.py`       | Retrieves the most relevant chunks using semantic search.        |
+| `rag_answer.py`      | Generates grounded answers using Gemini.                         |
+| `app.py`             | Streamlit web interface.                                         |
+| `test_loader.py`     | Basic automated tests.                                           |
+| `documents/`         | Source documents.                                                |
+| `chroma_db/`         | Persistent vector database.                                      |
+| `output_chunks.json` | Generated document chunks.                                       |
 
 ---
 
-# RAG Pipeline
+# RAG Architecture
 
-```
-                +----------------------+
-                |   documents/ folder  |
-                +----------+-----------+
-                           |
-                           v
-                +----------------------+
-                | document_loader.py   |
-                +----------+-----------+
-                           |
-                           v
-                +----------------------+
-                |    chunker.py        |
-                +----------+-----------+
-                           |
-                           v
-                +----------------------+
-                | output_chunks.json   |
-                +----------+-----------+
-                           |
-                           v
-                +----------------------+
-                |   embed_store.py     |
-                +----------+-----------+
-                           |
-                           v
-                +----------------------+
-                |      ChromaDB        |
-                +----------+-----------+
-                           |
-                     User Query
-                           |
-                           v
-                +----------------------+
-                |    retriever.py      |
-                +----------+-----------+
-                           |
-                    Retrieved Chunks
-                           |
-                           v
-                +----------------------+
-                |    rag_answer.py     |
-                +----------+-----------+
-                           |
-                           v
-                +----------------------+
-                |   Gemini 2.5 Flash   |
-                +----------+-----------+
-                           |
-                           v
-                     Final Answer
+```text
+User Uploads Document
+        │
+        ▼
+Document Loader
+        │
+        ▼
+Text Chunking
+        │
+        ▼
+Embedding Generation
+        │
+        ▼
+ChromaDB Vector Store
+        │
+        ▼
+Semantic Retrieval
+        │
+        ▼
+Gemini 2.5 Flash
+        │
+        ▼
+Final Answer + Source Citations
 ```
 
 ---
@@ -167,13 +146,13 @@ python -m venv venv
 
 ### Activate
 
-**Command Prompt**
+**Windows (Command Prompt)**
 
 ```bash
 venv\Scripts\activate
 ```
 
-**PowerShell**
+**Windows (PowerShell)**
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
@@ -198,8 +177,6 @@ Create a `.env` file in the project root.
 GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
 
-You can use the provided `.env.example` as a reference.
-
 ---
 
 # Project Workflow
@@ -212,10 +189,10 @@ python main.py
 
 This step:
 
-- Loads all documents from `documents/`
-- Splits them into overlapping chunks
-- Generates metadata
-- Saves the result as `output_chunks.json`
+* Loads all documents
+* Splits documents into chunks
+* Generates metadata
+* Saves chunks into `output_chunks.json`
 
 ---
 
@@ -227,9 +204,9 @@ python embed_store.py
 
 This step:
 
-- Reads `output_chunks.json`
-- Generates embeddings using `all-MiniLM-L6-v2`
-- Stores embeddings in ChromaDB (`chroma_db/`)
+* Reads `output_chunks.json`
+* Generates embeddings using Sentence Transformers
+* Stores embeddings inside ChromaDB
 
 ---
 
@@ -239,13 +216,13 @@ This step:
 python retriever.py
 ```
 
-Example query:
+Example:
 
-```
+```text
 What is RAG?
 ```
 
-The program retrieves the Top-3 most relevant chunks using semantic similarity.
+The program retrieves the Top-3 most relevant chunks.
 
 ---
 
@@ -257,11 +234,35 @@ python rag_answer.py
 
 Pipeline:
 
-- User enters a question
-- Query embedding is generated
-- Top-3 relevant chunks are retrieved
-- Retrieved chunks are combined into context
-- Gemini generates the final grounded answer
+* User enters a question
+* Relevant chunks are retrieved
+* Retrieved chunks become context
+* Gemini generates a grounded answer
+* Sources are displayed
+
+---
+
+## Step 5 — Launch the Web Application
+
+```bash
+streamlit run app.py
+```
+
+Using the Streamlit application you can:
+
+* Upload `.txt` and `.pdf` documents.
+* Process documents.
+* Ask questions.
+* View generated answers.
+* View retrieved chunks.
+* View source citations.
+
+---
+
+# Supported Documents
+
+* `.txt`
+* `.pdf`
 
 ---
 
@@ -269,13 +270,13 @@ Pipeline:
 
 Sentence Transformer
 
-```
+```text
 all-MiniLM-L6-v2
 ```
 
 Embedding Dimension
 
-```
+```text
 384
 ```
 
@@ -283,83 +284,96 @@ Embedding Dimension
 
 # Vector Database
 
-**Database**
+Database
 
-```
+```text
 ChromaDB
 ```
 
-**Persistent Storage**
+Persistent Storage
 
-```
+```text
 chroma_db/
 ```
 
-**Collection Name**
+Collection Name
 
-```
+```text
 rag_documents
 ```
 
 ---
 
-# Supported Documents
+# Example Query
 
-Current:
+```text
+What is Retrieval-Augmented Generation?
+```
 
-- `.txt`
+Example Answer
 
-Upcoming:
-
-- `.pdf`
+```text
+Retrieval-Augmented Generation (RAG) improves Large Language Models by retrieving relevant information from external documents before generating an answer. This allows responses to remain grounded in the uploaded knowledge base instead of relying only on the model's internal knowledge.
+```
 
 ---
 
-# Example Query
+# Screenshots
 
-```
-What is RAG?
-```
+## Home Page
 
-Retrieved Context
+*Add screenshot here.*
 
-- Chunk 2
-- Chunk 3
-- Chunk 1
+## Generated Answer
 
-Final Answer
+*Add screenshot here.*
 
-```
-Retrieval-Augmented Generation (RAG) improves LLM responses by retrieving relevant information from external documents before generating an answer. Instead of relying only on the model's internal knowledge, RAG searches through documents, retrieves useful chunks, and provides them as context.
-```
+## Retrieved Chunks
+
+*Add screenshot here.*
+
+---
+
+# What I Learned
+
+Through this project I gained practical experience with:
+
+* Retrieval-Augmented Generation (RAG)
+* Sentence Transformer embeddings
+* ChromaDB vector databases
+* Semantic similarity search
+* Prompt engineering
+* Google Gemini API integration
+* Streamlit application development
+* Modular Python project architecture
+* Basic software testing
 
 ---
 
 # Requirements
 
-The first execution may take a few minutes because the Sentence Transformer model is downloaded automatically from Hugging Face.
-- Python 3.12
-- Internet connection (required for Gemini API)
+* Python 3.12
+* Internet connection (required for Gemini API)
+
+> **Note:** The first execution may take a few minutes because the Sentence Transformer model is downloaded automatically.
 
 ---
 
 # Future Improvements
 
-- PDF Document Support
-- Automatic Duplicate Document Detection
-- Multiple Document Upload
-- Streamlit Web Interface
-- Conversation Memory
-- Source Citation in Answers
-- Hybrid Search (Keyword + Vector)
-- Reranking
-- Local LLM Support
-- Docker Deployment
+* DOCX document support
+* Token-based chunking
+* Hybrid search (Keyword + Vector)
+* Retrieval reranking
+* Conversation memory
+* RAG evaluation metrics
+* Local LLM support
+* Docker deployment
 
 ---
 
 # Author
 
-**Khushi Lunkad**
+**Khushi Lukkad**
 
 GitHub: https://github.com/khushilunkad12

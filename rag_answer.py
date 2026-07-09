@@ -108,7 +108,7 @@ def main():
         print("Question cannot be empty.")
         return
 
-    answer, metadatas = generate_answer(query)
+    answer, metadatas, _, _ = generate_answer(query)
 
     print("\n")
     print("=" * 70)

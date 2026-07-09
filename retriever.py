@@ -5,32 +5,76 @@ from sentence_transformers import SentenceTransformer
 # 1. Load Embedding Model
 # ==========================================
 
-print("Loading embedding model...")
+# ==========================================
+# Embedding Model (Lazy Loading)
+# ==========================================
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model = None
 
-print("Embedding model loaded.")
+
+def get_model():
+    """
+    Loads the embedding model only once.
+    """
+
+    global model
+
+    if model is None:
+
+        print("Loading embedding model...")
+
+        model = SentenceTransformer(
+            "all-MiniLM-L6-v2"
+        )
+
+        print("Embedding model loaded.")
+
+    return model
+
 
 # ==========================================
 # 2. Connect to ChromaDB
 # ==========================================
 
-client = chromadb.PersistentClient(path="chroma_db")
+# ==========================================
+# ChromaDB (Lazy Loading)
+# ==========================================
 
-try:
-    collection = client.get_collection(
-        name="rag_documents"
-    )
+collection = None
 
-except Exception:
-    print("Error: Chroma collection not found.")
-    print()
-    print("Run the following first:")
-    print("python main.py")
-    print("python embed_store.py")
-    exit()
 
-print("Connected to ChromaDB.")
+def get_collection():
+    """
+    Connects to ChromaDB only once.
+    """
+
+    global collection
+
+    if collection is None:
+
+        client = chromadb.PersistentClient(
+            path="chroma_db"
+        )
+
+        try:
+
+            collection = client.get_collection(
+                name="rag_documents"
+            )
+
+            print("Connected to ChromaDB.")
+
+        except Exception:
+
+            print("Error: Chroma collection not found.")
+            print()
+            print("Run:")
+            print("python main.py")
+            print("python embed_store.py")
+
+            exit()
+
+    return collection
 
 
 # ==========================================
@@ -49,7 +93,11 @@ def retrieve_chunks(query, top_k=3):
         distances
     """
 
+    model = get_model()
+
     query_embedding = model.encode(query).tolist()
+
+    collection = get_collection()
 
     results = collection.query(
         query_embeddings=[query_embedding],
@@ -62,7 +110,6 @@ def retrieve_chunks(query, top_k=3):
     distances = results["distances"][0]
 
     return ids, documents, metadatas, distances
-
 
 # ==========================================
 # 4. Main Function
