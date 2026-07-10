@@ -8,22 +8,21 @@ from retriever import retrieve_chunks
 # 1. Load Environment Variables
 # ==========================================
 
-load_dotenv()
+def get_gemini_client():
+    """
+    Loads the Gemini client when needed.
+    """
 
-API_KEY = os.getenv("GEMINI_API_KEY")
+    load_dotenv()
 
-if not API_KEY:
-    raise ValueError(
-        "GEMINI_API_KEY not found. Please add it to the .env file."
-    )
+    api_key = os.getenv("GEMINI_API_KEY")
 
-# ==========================================
-# 2. Create Gemini Client
-# ==========================================
+    if not api_key:
+        raise ValueError(
+            "GEMINI_API_KEY not found. Please add it to the .env file."
+        )
 
-gemini_client = genai.Client(api_key=API_KEY)
-
-
+    return genai.Client(api_key=api_key)
 # ==========================================
 # 3. Generate RAG Answer
 # ==========================================
@@ -82,6 +81,8 @@ Question:
     # ==========================================
     # Gemini
     # ==========================================
+    
+    gemini_client = get_gemini_client()
 
     response = gemini_client.models.generate_content(
         model="gemini-2.5-flash",

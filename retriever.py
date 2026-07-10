@@ -64,15 +64,13 @@ def get_collection():
 
             print("Connected to ChromaDB.")
 
-        except Exception:
+        except Exception as e:
 
-            print("Error: Chroma collection not found.")
-            print()
-            print("Run:")
-            print("python main.py")
-            print("python embed_store.py")
-
-            exit()
+           raise RuntimeError(
+        "Chroma collection not found. "
+        "Run 'python main.py' followed by "
+        "'python embed_store.py' first."
+    ) from e
 
     return collection
 
