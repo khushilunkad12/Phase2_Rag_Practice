@@ -55,4 +55,4 @@
 
 ## Notes
 
-The AI answer validation section will be completed after the Gemini API quota is available again. The current implementation has been verified for document upload, processing, indexing, retrieval workflow, UI behavior, and session management.
+Retrieval pipeline is verified. Final Gemini live-answer retest is pending after quota reset on 2026-07-12. The current implementation has been verified for document upload, processing, indexing, retrieval workflow, UI behavior, and session management.
