@@ -4,48 +4,68 @@ from pypdf import PdfReader
 
 def read_txt(file_path):
     """
-    Reads a text file and returns its contents.
+    Reads a text file.
+    Returns the text as Page 1.
     """
 
     with open(file_path, "r", encoding="utf-8") as file:
-        return file.read()
+
+        return [
+            {
+                "page": 1,
+                "text": file.read()
+            }
+        ]
 
 
 def read_pdf(file_path):
     """
-    Reads a PDF file and extracts text from every page.
+    Reads a PDF file.
+    Returns text page by page.
     """
 
     reader = PdfReader(file_path)
 
-    text = ""
+    pages = []
 
-    for page in reader.pages:
+    for page_number, page in enumerate(reader.pages, start=1):
 
-        page_text = page.extract_text()
+        text = page.extract_text()
 
-        if page_text:
-            text += page_text + "\n"
+        if text and text.strip():
 
-    return text
+            pages.append(
+                {
+                    "page": page_number,
+                    "text": text
+                }
+            )
+
+    return pages
 
 
 def load_documents(folder_path):
     """
-    Loads every supported document inside the documents folder.
-
-    Supported formats:
-    - .txt
-    - .pdf
+    Loads supported documents.
 
     Returns:
-        List of dictionaries containing
-        filename and text.
+        [
+            {
+                "filename": "...",
+                "pages": [
+                    {
+                        "page": 1,
+                        "text": "..."
+                    }
+                ]
+            }
+        ]
     """
 
     documents = []
 
     if not os.path.exists(folder_path):
+
         raise FileNotFoundError(
             f"Folder '{folder_path}' does not exist."
         )
@@ -56,38 +76,34 @@ def load_documents(folder_path):
 
         file_path = os.path.join(folder_path, file_name)
 
-        # -----------------------------
-        # Read TXT files
-        # -----------------------------
         if file_name.lower().endswith(".txt"):
 
-            text = read_txt(file_path)
+            pages = read_txt(file_path)
 
-        # -----------------------------
-        # Read PDF files
-        # -----------------------------
         elif file_name.lower().endswith(".pdf"):
 
-            text = read_pdf(file_path)
+            pages = read_pdf(file_path)
 
-        # -----------------------------
-        # Skip unsupported files
-        # -----------------------------
         else:
+
             continue
 
-        if not text.strip():
+        if len(pages) == 0:
+
             print(f"Skipping empty file: {file_name}")
             continue
 
-        documents.append({
-            "filename": file_name,
-            "text": text
-        })
+        documents.append(
+            {
+                "filename": file_name,
+                "pages": pages
+            }
+        )
 
     if len(documents) == 0:
+
         raise ValueError(
-            "No valid documents (.txt or .pdf) found inside the documents folder."
+            "No valid documents (.txt or .pdf) found."
         )
 
     return documents

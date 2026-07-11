@@ -1,8 +1,16 @@
 import os
-def chunk_text(text, source, chunk_size=300, overlap=50):
+
+
+def chunk_text(
+    text,
+    filename,
+    page_number,
+    chunk_size=300,
+    overlap=50
+):
     """
     Splits text into chunks without breaking words.
-    Adds metadata to every chunk.
+    Adds metadata (including page number) to every chunk.
     """
 
     chunks = []
@@ -11,8 +19,8 @@ def chunk_text(text, source, chunk_size=300, overlap=50):
 
     # Extract filename without extension
     source_name = os.path.splitext(
-    os.path.basename(source)
-)[0]
+        os.path.basename(filename)
+    )[0]
 
     while start < len(text):
 
@@ -36,21 +44,28 @@ def chunk_text(text, source, chunk_size=300, overlap=50):
         chunk = text[start:end].strip()
 
         # Create formatted chunk ID
-        formatted_chunk_id = f"{source_name}_chunk_{chunk_id:03d}"
+        formatted_chunk_id = (
+            f"{source_name}_"
+            f"page_{page_number}_"
+            f"chunk_{chunk_id:03d}"
+        )
 
         # Store chunk with metadata
-        chunks.append({
-            "chunk_id": formatted_chunk_id,
-            "text": chunk,
-            "metadata": {
-                "source": source,
-                "chunk_index": chunk_id,
-                "chunk_size": len(chunk),
-                "overlap": overlap
+        chunks.append(
+            {
+                "chunk_id": formatted_chunk_id,
+                "text": chunk,
+                "metadata": {
+                    "source": filename,
+                    "page": page_number,
+                    "chunk_index": chunk_id,
+                    "chunk_size": len(chunk),
+                    "overlap": overlap
+                }
             }
-        })
+        )
 
-        # If last chunk, stop
+        # Stop if last chunk
         if end == len(text):
             break
 
@@ -61,8 +76,12 @@ def chunk_text(text, source, chunk_size=300, overlap=50):
         if start < 0:
             start = 0
 
-        # Move forward to next complete word
-        while start < len(text) and start > 0 and text[start - 1] != " ":
+        # Move to next complete word
+        while (
+            start < len(text)
+            and start > 0
+            and text[start - 1] != " "
+        ):
             start += 1
 
         chunk_id += 1

@@ -4,29 +4,25 @@ from document_loader import load_documents
 from chunker import chunk_text
 
 
-# ==========================================
-# Process Documents
-# ==========================================
-
 def process_documents():
     """
-    Loads all documents, creates chunks,
-    and saves them to output_chunks.json.
+    Loads all documents, chunks them,
+    saves output_chunks.json,
+    and returns processing statistics.
     """
-
-    # ==========================================
-    # Load all documents
-    # ==========================================
 
     try:
         documents = load_documents("documents")
+
     except Exception as e:
         print(e)
-        return
+        return None
 
     print(f"Loaded {len(documents)} documents.\n")
 
     all_chunks = []
+
+    total_pages = 0
 
     # ==========================================
     # Chunk every document
@@ -36,12 +32,17 @@ def process_documents():
 
         print(f"Processing: {document['filename']}")
 
-        chunks = chunk_text(
-            document["text"],
-            document["filename"]
-        )
+        total_pages += len(document["pages"])
 
-        all_chunks.extend(chunks)
+        for page in document["pages"]:
+
+            chunks = chunk_text(
+                text=page["text"],
+                filename=document["filename"],
+                page_number=page["page"]
+            )
+
+            all_chunks.extend(chunks)
 
     # ==========================================
     # Save chunks
@@ -62,26 +63,18 @@ def process_documents():
     print("\nChunks saved to output_chunks.json")
 
     print(f"\nTotal Documents : {len(documents)}")
+    print(f"Total Pages     : {total_pages}")
     print(f"Total Chunks    : {len(all_chunks)}\n")
 
     # ==========================================
-    # Display chunks
+    # Return statistics
     # ==========================================
 
-    for chunk in all_chunks:
-
-        print("=" * 60)
-        print(f"Chunk ID    : {chunk['chunk_id']}")
-        print(f"Source      : {chunk['metadata']['source']}")
-        print(f"Chunk Index : {chunk['metadata']['chunk_index']}")
-        print(f"Chunk Size  : {chunk['metadata']['chunk_size']} characters")
-        print(f"Overlap     : {chunk['metadata']['overlap']} characters")
-        print("\nText:\n")
-        print(chunk["text"])
-        print("=" * 60)
-        print()
-
-    return all_chunks
+    return {
+        "documents": len(documents),
+        "pages": total_pages,
+        "chunks": len(all_chunks)
+    }
 
 
 # ==========================================
@@ -89,7 +82,19 @@ def process_documents():
 # ==========================================
 
 def main():
-    process_documents()
+
+    stats = process_documents()
+
+    if stats is None:
+        return
+
+    print("=" * 60)
+    print("PROCESSING SUMMARY")
+    print("=" * 60)
+    print(f"Documents : {stats['documents']}")
+    print(f"Pages     : {stats['pages']}")
+    print(f"Chunks    : {stats['chunks']}")
+    print("=" * 60)
 
 
 # ==========================================

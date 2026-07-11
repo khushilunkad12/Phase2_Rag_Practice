@@ -1,13 +1,35 @@
-import streamlit as st
+
 import os
+import shutil
+import streamlit as st
+
 from main import process_documents
 from embed_store import store_embeddings
 from rag_answer import generate_answer
+
+# ==========================================
+# Page Configuration
+# ==========================================
+
 st.set_page_config(
     page_title="RAG Document QA",
     page_icon="📄",
     layout="wide"
 )
+
+# ==========================================
+# Session State
+# ==========================================
+
+if "document_ready" not in st.session_state:
+    st.session_state.document_ready = False
+
+if "current_document" not in st.session_state:
+    st.session_state.current_document = None
+
+# ==========================================
+# Title
+# ==========================================
 
 st.title("📄 RAG Document Question Answering")
 
@@ -28,105 +50,175 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
 
-    # Create documents folder if it doesn't exist
-    os.makedirs("documents", exist_ok=True)
+    if st.session_state.current_document != uploaded_file.name:
 
-    # Save uploaded file
-    file_path = os.path.join(
-        "documents",
-        uploaded_file.name
-    )
+        # Remove previous document
+        if os.path.exists("documents"):
+            shutil.rmtree("documents")
 
-    with open(file_path, "wb") as file:
-        file.write(uploaded_file.getbuffer())
+        os.makedirs("documents", exist_ok=True)
 
-    st.success(
-        f"{uploaded_file.name} uploaded successfully!"
-    )
-    st.divider()
+        file_path = os.path.join(
+            "documents",
+            uploaded_file.name
+        )
 
-# ==========================================
-# Process Document
-# ==========================================
+        with open(file_path, "wb") as file:
+            file.write(uploaded_file.getbuffer())
 
-if uploaded_file is not None:
+        st.session_state.current_document = uploaded_file.name
+        st.session_state.document_ready = False
 
-    if st.button("⚙️ Process Document"):
+        st.success(f"{uploaded_file.name} uploaded successfully!")
 
         with st.spinner("Processing document..."):
 
-            process_documents()
+            if os.path.exists("chroma_db"):
+                shutil.rmtree("chroma_db")
+
+            stats = process_documents()
+
+            if stats is None:
+                st.error("Failed to process document.")
+                st.stop()
 
             store_embeddings()
 
-        st.success("Document processed successfully!")
+        st.session_state.document_ready = True
+
+        st.success("✅ Document processed successfully!")
+
+        st.info(
+            f"""
+📄 **File:** {uploaded_file.name}
+
+📑 **Pages:** {stats['pages']}
+
+🧩 **Chunks Created:** {stats['chunks']}
+"""
+        )
 
 st.divider()
 
+# ==========================================
+# Current Document
+# ==========================================
+
+st.subheader("📂 Current Document")
+
+if st.session_state.current_document:
+
+    st.write(f"**{st.session_state.current_document}**")
+
+else:
+
+    st.info("No document uploaded.")
+
+st.divider()
+
+
+if st.button("🗑️ Reset Session"):
+
+    if os.path.exists("documents"):
+        shutil.rmtree("documents")
+
+    if os.path.exists("chroma_db"):
+        shutil.rmtree("chroma_db")
+
+    if os.path.exists("output_chunks.json"):
+        os.remove("output_chunks.json")
+
+    st.session_state.current_document = None
+    st.session_state.document_ready = False
+
+    st.success("Session cleared successfully.")
+
+    st.rerun()
 # ==========================================
 # Ask Question
 # ==========================================
 
-st.divider()
+if not st.session_state.document_ready:
 
-question = st.text_input(
-    "Ask a question about your documents"
-)
+    st.info(
+        "Please upload and process a document before asking questions."
+    )
 
-if st.button("🔍 Ask Question"):
+else:
 
-    if not question.strip():
-        st.warning("Please enter a question.")
+    question = st.text_input(
+        "Ask a question about your document"
+    )
 
-    else:
+    if st.button("🔍 Ask Question"):
 
-        with st.spinner("Generating answer..."):
+        if not question.strip():
 
-            answer, sources, chunks, distances = generate_answer(
-                question
-            )
+            st.warning("Please enter a question.")
 
-        st.success("Answer generated!")
+        else:
 
-        # ==========================================
-        # Display Answer
-        # ==========================================
+            with st.spinner("Generating answer..."):
 
-        st.subheader("🤖 Answer")
-        st.write(answer)
+                answer, sources, chunks, distances = generate_answer(
+                    question
+                )
 
-        # ==========================================
-        # Display Sources
-        # ==========================================
+            st.success("Answer generated!")
 
-        st.subheader("📚 Sources")
+            # ==========================================
+            # Display Answer
+            # ==========================================
+
+            if answer.strip() == "Not enough information in the uploaded documents.":
+
+                st.warning(
+                    "⚠️ The uploaded documents do not contain enough information to answer this question."
+                )
+
+            else:
+
+                st.subheader("🤖 Answer")
+                st.write(answer)
+
+            # ==========================================
+            # Sources
+            # ==========================================
+
+            st.subheader("📚 Sources")
 
         for index, source in enumerate(sources, start=1):
 
             st.write(
-                f"{index}. {source['source']} "
-                f"(Chunk {source['chunk_index']})"
-            )
+        f"{index}. {source['source']} "
+        f"(Page {source.get('page', 'N/A')}, "
+        f"Chunk {source['chunk_index']})"
+    )
 
-        # ==========================================
-        # Display Retrieved Chunks
-        # ==========================================
+            # ==========================================
+            # Retrieved Chunks
+            # ==========================================
 
-        st.subheader("📄 Retrieved Chunks")
+            st.subheader("📄 Retrieved Chunks")
 
-        for i in range(len(chunks)):
+            for i in range(len(chunks)):
 
-            with st.expander(
-                f"Chunk {i + 1} "
-                f"(Distance: {distances[i]:.4f})"
-            ):
+                with st.expander(
+                    f"Retrieved Chunk {i + 1} (Distance: {distances[i]:.4f})",
+                    expanded=False
+                ):
 
-                st.write(
-                    f"**Source:** {sources[i]['source']}"
-                )
+                    st.write(
+                        f"**Source:** {sources[i]['source']}"
+                    )
 
-                st.write(
-                    f"**Chunk Index:** {sources[i]['chunk_index']}"
-                )
+                    st.write(
+    f"**Page:** {sources[i].get('page', 'N/A')}"
+)
 
-                st.write(chunks[i])
+                    st.write(
+    f"**Chunk Index:** {sources[i]['chunk_index']}"
+)
+
+                    st.write(chunks[i])
+
