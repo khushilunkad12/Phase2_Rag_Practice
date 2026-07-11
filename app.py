@@ -177,17 +177,19 @@ else:
         "⚠️ The uploaded documents do not contain enough information to answer this question."
     )
 
-            elif answer.strip() == "LLM quota unavailable. Retrieved context is shown below.":
+            elif answer.strip() == "LLM/API unavailable. Retrieved context is shown below.":
 
-               st.error("⚠️ Gemini API quota exceeded.")
+               st.error("⚠️ Gemini service is currently unavailable.")
 
                st.info(
-        """
-The language model could not generate an answer because the Gemini API quota has been exhausted.
+    """
+The language model is currently unavailable (for example, due to API quota,
+network issues, or service availability).
 
-The retrieved sources and document chunks are still shown below so you can verify that the retrieval pipeline is working correctly.
+The retrieved sources and document chunks are still shown below so you can
+verify that the retrieval pipeline is working correctly.
 """
-    )
+)
 
             else:
 

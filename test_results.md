@@ -10,67 +10,46 @@
 
 ---
 
-## Functional Test Cases
+## Retrieval & Gemini Validation
 
-| Test ID | Scenario                                     | Expected Result                                                          | Actual Result | Source/Page | Status |
-| ------- | -------------------------------------------- | ------------------------------------------------------------------------ | ------------- | ----------- | ------ |
-| TC-01   | Upload a PDF document                        | Document uploads successfully                                            | Pass          | N/A         | ✅      |
-| TC-02   | Upload a TXT document                        | Document uploads successfully                                            | Pass          | N/A         | ✅      |
-| TC-03   | Process uploaded document                    | Chunks and embeddings are generated successfully                         | Pass          | N/A         | ✅      |
-| TC-04   | Display current active document              | Uploaded document name is displayed                                      | Pass          | N/A         | ✅      |
-| TC-05   | Replace existing document with a new upload  | Previous document is removed and only the latest document remains active | Pass          | N/A         | ✅      |
-| TC-06   | Reset Session                                | Documents, ChromaDB, output chunks, and session state are cleared        | Pass          | N/A         | ✅      |
-| TC-07   | Ask a question before processing a document  | User is prompted to process a document first                             | Pass          | N/A         | ✅      |
-| TC-08   | Retrieved chunks remain collapsed by default | Chunks are displayed inside expandable sections                          | Pass          | N/A         | ✅      |
-| TC-09   | Source citations                             | Source file, page number, and chunk number are displayed                 | Pass          | N/A         | ✅      |
-| TC-10   | Unsupported document                         | Unsupported file types are rejected                                      | Pass          | N/A         | ✅      |
+### Retrieval Pipeline (Verified)
+
+| Test ID | Test                  | Result                                                                  | Status |
+| ------- | --------------------- | ----------------------------------------------------------------------- | ------ |
+| R-01    | Upload PDF            | Successfully uploaded and processed                                     | ✅ Pass |
+| R-02    | Chunk Generation      | Chunks created successfully                                             | ✅ Pass |
+| R-03    | Embedding Storage     | Stored successfully in ChromaDB                                         | ✅ Pass |
+| R-04    | Semantic Retrieval    | Relevant top chunks retrieved                                           | ✅ Pass |
+| R-05    | Source Citation       | File name, page number and chunk displayed correctly                    | ✅ Pass |
+| R-06    | Out-of-document Query | Correctly indicated insufficient information based on retrieved context | ✅ Pass |
+| R-07    | Retrieved Chunks UI   | Retrieved chunks displayed in collapsible sections                      | ✅ Pass |
 
 ---
 
+### Gemini Answer Generation (Partial Verification)
 
-## Retrieval & Answer Validation
+| Test ID | Test                                                | Result                                                                         | Status                |
+| ------- | --------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------- |
+| G-01    | Live answer generation                              | Successfully verified before API became unavailable during development         | ⚠️ Partially Verified |
+| G-02    | LLM unavailable handling                            | Application continues to display retrieved sources and chunks without crashing | ✅ Pass                |
+| G-03    | Live answer generation after API became unavailable | **Pending retest after Gemini quota reset on 2026-07-12**                      | ⏳ Pending             |
 
-| Test ID | Question                           | Retrieval Result                                                            | LLM Result                                                                               | Source/Page               | Status |
-| ------- | ---------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------- | ------ |
-| AI-01   | What is Python?                    | Relevant chunks retrieved successfully                                      | Correct answer generated before quota exhaustion                                         | python notes.pdf (Page 1) | ✅ Pass |
-| AI-02   | What is RAG?                       | Relevant chunks retrieved successfully                                      | Correct answer generated before quota exhaustion                                         | sample.txt / rag.txt      | ✅ Pass |
-| AI-03   | What are LLMs?                     | Relevant chunks retrieved successfully                                      | Correct answer generated before quota exhaustion                                         | sample.txt                | ✅ Pass |
-| AI-04   | Which embedding model is used?     | Retrieval completed, but uploaded documents did not contain the information | Returned "Not enough information in the uploaded documents."                             | ai models.txt             | ✅ Pass |
-| AI-05   | What is ChromaDB?                  | Retrieval completed, but uploaded documents did not contain the information | Returned "Not enough information in the uploaded documents."                             | AI-MODELS-TASK-1.pdf      | ✅ Pass |
-| AI-06   | Question outside uploaded document | Retrieval completed successfully                                            | Correctly identified insufficient information                                            | N/A                       | ✅ Pass |
-| AI-07   | Gemini API quota exhausted         | Retrieved chunks and sources displayed successfully                         | Answer generation unavailable due to API quota; application handled the error gracefully | N/A                       | ✅ Pass |
+---
 
-### Verification Summary
+## Overall Status
 
-* Document upload verified
-* Automatic document processing verified
-* PDF and TXT document support verified
-* Chunk generation verified
-* ChromaDB embedding storage verified
-* Semantic retrieval verified
-* Source citation (file, page, chunk) verified
-* Expandable retrieved chunks verified
-* Single active document workflow verified
-* Reset Session functionality verified
-* "Not enough information" handling verified
-* Gemini API quota handling verified (application continues to show retrieved context and sources)
+* ✅ Document upload verified
+* ✅ Automatic document processing verified
+* ✅ PDF/TXT document support verified
+* ✅ Chunk generation verified
+* ✅ ChromaDB integration verified
+* ✅ Retrieval pipeline verified
+* ✅ Source citation verified
+* ✅ Single-document workflow verified
+* ✅ Session reset verified
+* ✅ Graceful handling when the LLM/API is unavailable
+* ⏳ Final live Gemini answer validation pending retest after API availability is restored (planned for **2026-07-12**).
 
-
-## Features Verified
-
-* Single active document workflow
-* Automatic document processing after upload
-* PDF and TXT document support
-* Character-based chunking with overlap
-* Embedding generation using Sentence Transformers
-* ChromaDB vector storage
-* Semantic similarity search
-* Retrieval-Augmented Generation (RAG)
-* Source citations
-* Page number citations
-* Expandable retrieved chunks
-* Session reset functionality
-* "Not enough information" response for unsupported queries
 
 ---
 
