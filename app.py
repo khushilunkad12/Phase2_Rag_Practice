@@ -1,4 +1,3 @@
-
 import os
 import shutil
 import streamlit as st
@@ -107,15 +106,15 @@ st.divider()
 st.subheader("📂 Current Document")
 
 if st.session_state.current_document:
-
     st.write(f"**{st.session_state.current_document}**")
-
 else:
-
     st.info("No document uploaded.")
 
 st.divider()
 
+# ==========================================
+# Reset Session
+# ==========================================
 
 if st.button("🗑️ Reset Session"):
 
@@ -132,8 +131,10 @@ if st.button("🗑️ Reset Session"):
     st.session_state.document_ready = False
 
     st.success("Session cleared successfully.")
-
     st.rerun()
+
+st.divider()
+
 # ==========================================
 # Ask Question
 # ==========================================
@@ -173,27 +174,40 @@ else:
             if answer.strip() == "Not enough information in the uploaded documents.":
 
                 st.warning(
-                    "⚠️ The uploaded documents do not contain enough information to answer this question."
-                )
+        "⚠️ The uploaded documents do not contain enough information to answer this question."
+    )
+
+            elif answer.strip() == "LLM quota unavailable. Retrieved context is shown below.":
+
+               st.error("⚠️ Gemini API quota exceeded.")
+
+               st.info(
+        """
+The language model could not generate an answer because the Gemini API quota has been exhausted.
+
+The retrieved sources and document chunks are still shown below so you can verify that the retrieval pipeline is working correctly.
+"""
+    )
 
             else:
 
+    
+
                 st.subheader("🤖 Answer")
                 st.write(answer)
-
             # ==========================================
             # Sources
             # ==========================================
 
             st.subheader("📚 Sources")
 
-        for index, source in enumerate(sources, start=1):
+            for index, source in enumerate(sources, start=1):
 
-            st.write(
-        f"{index}. {source['source']} "
-        f"(Page {source.get('page', 'N/A')}, "
-        f"Chunk {source['chunk_index']})"
-    )
+                st.write(
+                    f"{index}. {source['source']} "
+                    f"(Page {source.get('page', 'N/A')}, "
+                    f"Chunk {source['chunk_index']})"
+                )
 
             # ==========================================
             # Retrieved Chunks
@@ -213,12 +227,11 @@ else:
                     )
 
                     st.write(
-    f"**Page:** {sources[i].get('page', 'N/A')}"
-)
+                        f"**Page:** {sources[i].get('page', 'N/A')}"
+                    )
 
                     st.write(
-    f"**Chunk Index:** {sources[i]['chunk_index']}"
-)
+                        f"**Chunk Index:** {sources[i]['chunk_index']}"
+                    )
 
                     st.write(chunks[i])
-

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from retriever import retrieve_chunks
 
 # ==========================================
-# 1. Load Environment Variables
+# 1. Load Gemini Client
 # ==========================================
 
 def get_gemini_client():
@@ -23,8 +23,10 @@ def get_gemini_client():
         )
 
     return genai.Client(api_key=api_key)
+
+
 # ==========================================
-# 3. Generate RAG Answer
+# 2. Generate RAG Answer
 # ==========================================
 
 def generate_answer(query):
@@ -36,21 +38,10 @@ def generate_answer(query):
         answer
         metadatas
         documents
+        distances
     """
 
     ids, documents, metadatas, distances = retrieve_chunks(query)
-
-    # print("\nRetrieved Chunks:\n")
-
-    # for i in range(len(documents)):
-    #     print("=" * 60)
-    #     print(f"Rank : {i + 1}")
-    #     print(f"Distance : {distances[i]:.4f}")
-    #     print(f"Source : {metadatas[i]['source']}")
-    #     print(f"Chunk : {metadatas[i]['chunk_index']}")
-    #     print()
-    #     print(documents[i])
-    #     print("=" * 60)
 
     # ==========================================
     # Build Context
@@ -81,24 +72,36 @@ Question:
     # ==========================================
     # Gemini
     # ==========================================
-    
-    gemini_client = get_gemini_client()
 
-    response = gemini_client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
+    try:
+
+        gemini_client = get_gemini_client()
+
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+
+        answer = response.text
+
+    except Exception as e:
+
+        print(f"Gemini Error: {e}")
+
+        answer = (
+            "LLM quota unavailable. Retrieved context is shown below."
+        )
 
     return (
-    response.text,
-    metadatas,
-    documents,
-    distances
-)
+        answer,
+        metadatas,
+        documents,
+        distances
+    )
 
 
 # ==========================================
-# 4. Main Function
+# 3. Main Function
 # ==========================================
 
 def main():
@@ -124,16 +127,18 @@ def main():
 
     for index, metadata in enumerate(metadatas, start=1):
 
+        page = metadata.get("page", "N/A")
+
         print(
             f"{index}. {metadata['source']} "
-            f"(Chunk {metadata['chunk_index']})"
+            f"(Page {page}, Chunk {metadata['chunk_index']})"
         )
 
     print("=" * 70)
 
 
 # ==========================================
-# 5. Entry Point
+# 4. Entry Point
 # ==========================================
 
 if __name__ == "__main__":

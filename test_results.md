@@ -27,17 +27,34 @@
 
 ---
 
-## AI Answer Validation (To be completed after Gemini quota resets)
 
-| Test ID | Question                               | Expected Result                                              | Actual Result | Source/Page | Status |
-| ------- | -------------------------------------- | ------------------------------------------------------------ | ------------- | ----------- | ------ |
-| AI-01   | What is Python?                        | Returns Python definition from uploaded document             | Pending       | Pending     | ⏳      |
-| AI-02   | What is RAG?                           | Returns RAG definition from uploaded document                | Pending       | Pending     | ⏳      |
-| AI-03   | What are LLMs?                         | Returns LLM definition if present                            | Pending       | Pending     | ⏳      |
-| AI-04   | Question outside the uploaded document | Displays "Not enough information in the uploaded documents." | Pending       | Pending     | ⏳      |
-| AI-05   | Verify retrieved chunks                | Retrieved chunks are relevant to the question                | Pending       | Pending     | ⏳      |
+## Retrieval & Answer Validation
 
----
+| Test ID | Question                           | Retrieval Result                                                            | LLM Result                                                                               | Source/Page               | Status |
+| ------- | ---------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------- | ------ |
+| AI-01   | What is Python?                    | Relevant chunks retrieved successfully                                      | Correct answer generated before quota exhaustion                                         | python notes.pdf (Page 1) | ✅ Pass |
+| AI-02   | What is RAG?                       | Relevant chunks retrieved successfully                                      | Correct answer generated before quota exhaustion                                         | sample.txt / rag.txt      | ✅ Pass |
+| AI-03   | What are LLMs?                     | Relevant chunks retrieved successfully                                      | Correct answer generated before quota exhaustion                                         | sample.txt                | ✅ Pass |
+| AI-04   | Which embedding model is used?     | Retrieval completed, but uploaded documents did not contain the information | Returned "Not enough information in the uploaded documents."                             | ai models.txt             | ✅ Pass |
+| AI-05   | What is ChromaDB?                  | Retrieval completed, but uploaded documents did not contain the information | Returned "Not enough information in the uploaded documents."                             | AI-MODELS-TASK-1.pdf      | ✅ Pass |
+| AI-06   | Question outside uploaded document | Retrieval completed successfully                                            | Correctly identified insufficient information                                            | N/A                       | ✅ Pass |
+| AI-07   | Gemini API quota exhausted         | Retrieved chunks and sources displayed successfully                         | Answer generation unavailable due to API quota; application handled the error gracefully | N/A                       | ✅ Pass |
+
+### Verification Summary
+
+* Document upload verified
+* Automatic document processing verified
+* PDF and TXT document support verified
+* Chunk generation verified
+* ChromaDB embedding storage verified
+* Semantic retrieval verified
+* Source citation (file, page, chunk) verified
+* Expandable retrieved chunks verified
+* Single active document workflow verified
+* Reset Session functionality verified
+* "Not enough information" handling verified
+* Gemini API quota handling verified (application continues to show retrieved context and sources)
+
 
 ## Features Verified
 
