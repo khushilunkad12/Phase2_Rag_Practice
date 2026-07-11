@@ -89,7 +89,7 @@ Question:
         print(f"Gemini Error: {e}")
 
         answer = (
-            "LLM quota unavailable. Retrieved context is shown below."
+            "LLM/API unavailable. Retrieved context is shown below."
         )
 
     return (
