@@ -120,9 +120,9 @@ The application correctly:
 
 Status: verified
 
-Reason:
 
-Pending retest after Gemini quota reset on **2026-07-12**.
+
+
 
 ---
 
@@ -171,11 +171,8 @@ The only pending validation is the final Gemini-generated response due to tempor
 * ✅ Single-document workflow verified
 * ✅ Session reset verified
 * ✅ Graceful handling when the LLM/API is unavailable
-* ⏳ Final live Gemini answer validation pending retest after API availability is restored (planned for **2026-07-12**).
+
 
 
 ---
 
-## Notes
-
-Retrieval pipeline is verified. Final Gemini live-answer retest is pending after quota reset on 2026-07-12. The current implementation has been verified for document upload, processing, indexing, retrieval workflow, UI behavior, and session management.

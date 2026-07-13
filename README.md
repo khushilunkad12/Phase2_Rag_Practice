@@ -455,6 +455,7 @@ Through this project I gained practical experience with:
 * RAG evaluation metrics
 * Local LLM support
 * Docker deployment
+*Reset Session button to clear current document, output chunks, session state, and ChromaDB collection.
 
 ---
 
