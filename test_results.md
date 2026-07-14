@@ -10,6 +10,66 @@
 
 ---
 
+## Multiple Document Testing
+
+### Test Case 1
+Upload:
+- python_notes.pdf
+- dbms_notes.pdf
+
+Result:
+PASS
+
+Observation:
+Both documents were processed successfully and chunks were generated.
+
+---
+
+### Test Case 2
+Question:
+"What is Python?"
+
+Expected:
+Answer retrieved from python_notes.pdf
+
+Result:
+PASS
+
+---
+
+### Test Case 3
+Question:
+"What is normalization?"
+
+Expected:
+Answer retrieved from dbms_notes.pdf
+
+Result:
+PASS
+
+---
+
+### Test Case 4
+Question:
+Ask a question involving concepts from both PDFs.
+
+Expected:
+Relevant chunks retrieved from finanance .pdf 
+
+Result:
+PASS
+
+---
+
+### Test Case 5
+Reset Session
+
+Expected:
+Documents folder cleared, Chroma collection removed, session reset.
+
+Result:
+PASS
+
 ## Retrieval & Gemini Validation
 
 ### Retrieval Pipeline (Verified)

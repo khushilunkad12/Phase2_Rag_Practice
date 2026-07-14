@@ -264,6 +264,9 @@ GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
 
 ---
+> Note:
+> The first installation may take several minutes because
+> sentence-transformers downloads the PyTorch model and embedding model.
 
 # Project Workflow
 
@@ -404,6 +407,18 @@ Retrieval-Augmented Generation (RAG) improves Large Language Models by retrievin
 
 ---
 
+## Multiple Document Workflow
+
+1. Upload one or more PDF/TXT files.
+2. Click **Process Documents**.
+3. The application:
+   - Reads all uploaded documents.
+   - Splits them into chunks.
+   - Generates embeddings.
+   - Stores them in ChromaDB.
+4. Ask questions about any uploaded document or across multiple documents.
+5. Retrieved sources display the file name, page number, and chunk number.
+6. Click **Reset Session** to remove all uploaded documents and embeddings.
 # Screenshots
 
 ## Home Page
@@ -455,7 +470,7 @@ Through this project I gained practical experience with:
 * RAG evaluation metrics
 * Local LLM support
 * Docker deployment
-*Reset Session button to clear current document, output chunks, session state, and ChromaDB collection.
+
 
 ---
 

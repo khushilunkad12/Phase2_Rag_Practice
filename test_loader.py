@@ -1,53 +1,71 @@
+import os
+
 from document_loader import load_documents
 from chunker import chunk_text
+from main import process_documents
 
 print("Running tests...\n")
 
 # ==========================================
-# Test 1 - Load Documents
+# Test 1 - Load Multiple Documents
 # ==========================================
 
 documents = load_documents("documents")
 
-assert len(documents) > 0, "No documents were loaded."
+assert len(documents) >= 2, "Expected at least 2 documents."
 
-print("✓ Documents loaded successfully.")
+for document in documents:
+
+    assert "filename" in document, "Filename missing."
+
+    assert "pages" in document, "Pages missing."
+
+print(f"✓ Loaded {len(documents)} documents successfully.")
 
 # ==========================================
-# Test 2 - Chunk Documents
+# Test 2 - Validate Pages Structure
+# ==========================================
+
+total_pages = 0
+
+for document in documents:
+
+    for page in document["pages"]:
+
+        assert "page" in page, "Page number missing."
+
+        assert "text" in page, "Page text missing."
+
+        assert page["text"].strip() != "", "Empty page found."
+
+        total_pages += 1
+
+print(f"✓ Validated {total_pages} pages.")
+
+# ==========================================
+# Test 3 - Chunk All Documents
 # ==========================================
 
 all_chunks = []
 
 for document in documents:
 
-    chunks = chunk_text(
-        document["text"],
-        document["filename"]
-    )
+    for page in document["pages"]:
 
-    all_chunks.extend(chunks)
+        chunks = chunk_text(
+            text=page["text"],
+            filename=document["filename"],
+            page_number=page["page"]
+        )
 
-assert len(all_chunks) > 0, "No chunks were created."
+        all_chunks.extend(chunks)
 
-print("✓ Chunks created successfully.")
+assert len(all_chunks) > 0, "No chunks created."
 
-# ==========================================
-# Test 3 - Validate Chunk Structure
-# ==========================================
-
-for chunk in all_chunks:
-
-    assert "chunk_id" in chunk, "Chunk ID missing."
-
-    assert "text" in chunk, "Chunk text missing."
-
-    assert "metadata" in chunk, "Metadata missing."
-
-print("✓ Chunk structure is valid.")
+print(f"✓ Created {len(all_chunks)} chunks.")
 
 # ==========================================
-# Test 4 - Validate Metadata
+# Test 4 - Validate Chunk Metadata
 # ==========================================
 
 for chunk in all_chunks:
@@ -56,24 +74,49 @@ for chunk in all_chunks:
 
     assert "source" in metadata, "Source missing."
 
+    assert "page" in metadata, "Page missing."
+
     assert "chunk_index" in metadata, "Chunk index missing."
 
     assert "chunk_size" in metadata, "Chunk size missing."
 
     assert "overlap" in metadata, "Overlap missing."
 
-print("✓ Metadata validated.")
+print("✓ Chunk metadata validated.")
 
 # ==========================================
-# Test 5 - Validate Chunk Content
+# Test 5 - Verify Multiple Sources
 # ==========================================
 
-for chunk in all_chunks:
+sources = set(
+    chunk["metadata"]["source"]
+    for chunk in all_chunks
+)
 
-    assert chunk["text"].strip() != "", "Empty chunk found."
+assert len(sources) >= 2, "Chunks should come from multiple documents."
 
-print("✓ Chunk text validated.")
+print(f"✓ Chunks generated from {len(sources)} different documents.")
 
-print("\n===================================")
+# ==========================================
+# Test 6 - Run Full Processing Pipeline
+# ==========================================
+
+stats = process_documents()
+
+assert stats is not None, "process_documents() returned None."
+
+assert stats["documents"] >= 2, "Document count incorrect."
+
+assert stats["pages"] > 0, "Page count should be greater than 0."
+
+assert stats["chunks"] > 0, "Chunk count should be greater than 0."
+
+assert os.path.exists(
+    "output_chunks.json"
+), "output_chunks.json was not created."
+
+print("✓ Full processing pipeline validated.")
+
+print("\n========================================")
 print("All tests passed successfully!")
-print("===================================")
+print("========================================")
